@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3c4c2826005c95d1294d8ab6efe8585",
+    "content-hash": "32081c9f09485b6828dae1ffcc5f4be1",
     "packages": [
         {
             "name": "composer/installers",
@@ -151,6 +151,18 @@
                 }
             ],
             "time": "2024-06-24T20:46:46+00:00"
+        },
+        {
+            "name": "gravity/gravityforms",
+            "version": "2.9.20",
+            "dist": {
+                "type": "zip",
+                "url": "https://composer.gravity.io/downloads/?plugin=gravityforms&version=2.9.20"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin"
         },
         {
             "name": "trimarkdigital/breeze",

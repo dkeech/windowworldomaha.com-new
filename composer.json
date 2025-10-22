@@ -20,10 +20,15 @@
 		{
 			"type": "vcs",
 			"url": "git@github.com:trimarkdigital/breeze.git"
+		},
+		{
+			"type": "composer",
+			"url": "https://composer.gravity.io"
 		}
     ],
     "require": {
         "composer/installers": "^2.0",
+        "gravity/gravityforms": "^2.9",
         "trimarkdigital/breeze": "dev-master",
         "wpackagist-plugin/wordpress-seo": "^25.0",
         "wpackagist-plugin/disable-comments": "^2.3",
