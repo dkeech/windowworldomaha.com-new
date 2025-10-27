@@ -11,3 +11,7 @@ $ composer install
 ```
 
 This will install the Breeze theme as well as any base plugins this site requires.
+
+## Breeze Parent Theme
+
+***Important note: do not directly modify this theme from this project as any changes will get overwritten when the theme is updated.***
