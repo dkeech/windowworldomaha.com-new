@@ -4,7 +4,14 @@ A Breeze theme repo using the Breeze Child theme. This repo contains all website
 
 ## Quick Start with Composer
 
-Make sure you have [composer installed](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-macos) on your system first, then from the project root, run:
+### Prerequisites
+
+1. Make sure you have [composer installed](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-macos) on your system
+2. Create `auth.json` file in project root with the necessary license keys and information
+
+### Quick Start
+
+Once you have the necessary requirements met, then from the project root, run:
 
 ```shell
 $ composer install
