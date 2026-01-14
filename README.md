@@ -1,4 +1,4 @@
-# Window World of Jersey Coast
+# Window World of Omaha
 
 A Breeze theme repo using the Breeze Child theme. This repo contains all website specific files based from the public web root. The Breeze theme can be found in the standalone [Breeze Repo](https://github.com/trimarkdigital/breeze).
 
