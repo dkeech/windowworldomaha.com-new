@@ -78,11 +78,11 @@ add_filter('excerpt_more', __NAMESPACE__ . '\\excerpt_more');
  * @return void
  */
 function phpmailer_init($phpmailer) {
-	// Don't configure SMTP on production/staging - we'll use API instead
 	if (wp_get_environment_type() === 'production' || wp_get_environment_type() === 'staging') {
-		// Prevent default PHPMailer processing
-		// We're handling it via the wp_mail filter instead
-		error_log('=== Using SendGrid API instead of SMTP ===');
+		global $sendgrid_sent_successfully;
+		if ($sendgrid_sent_successfully) {
+			$phpmailer->ClearAllRecipients();
+		}
 	}
 }
 add_action('phpmailer_init', __NAMESPACE__ . '\\phpmailer_init', 999);
@@ -91,25 +91,39 @@ add_action('phpmailer_init', __NAMESPACE__ . '\\phpmailer_init', 999);
  * Send email via SendGrid API instead of SMTP
  *
  * @param  array $args
- * @return bool
+ * @return array
  */
 function send_via_sendgrid_api($args) {
-	// Only use API on production/staging
 	if (wp_get_environment_type() !== 'production' && wp_get_environment_type() !== 'staging') {
-		return $args; // Let default mail handler work
+		return $args;
 	}
 	
 	$api_key = getenv('SENDGRID_API_KEY');
-	
-	error_log('=== SENDING VIA SENDGRID API ===');
-	error_log('To: ' . print_r($args['to'], true));
-	error_log('Subject: ' . $args['subject']);
 	
 	// Format recipients
 	$to_emails = is_array($args['to']) ? $args['to'] : explode(',', $args['to']);
 	$to_formatted = array_map(function($email) {
 		return ['email' => trim($email)];
 	}, $to_emails);
+	
+	// Handle BCC from headers
+	$bcc_formatted = [];
+	if (!empty($args['headers'])) {
+		$headers = is_array($args['headers']) ? $args['headers'] : explode("\n", str_replace("\r\n", "\n", $args['headers']));
+		foreach ($headers as $header) {
+			if (stripos($header, 'Bcc:') === 0) {
+				$bcc_emails = trim(substr($header, 4));
+				$bcc_list = explode(',', $bcc_emails);
+				foreach ($bcc_list as $bcc_email) {
+					$bcc_formatted[] = ['email' => trim($bcc_email)];
+				}
+			}
+		}
+	}
+	
+	// Check if message contains HTML
+	$is_html = (stripos($args['message'], '<html') !== false || stripos($args['message'], '<!doctype') !== false);
+	$content_type = $is_html ? 'text/html' : 'text/plain';
 	
 	$data = [
 		'personalizations' => [
@@ -120,9 +134,14 @@ function send_via_sendgrid_api($args) {
 		'from' => ['email' => 'noreply@trimarkleads.com', 'name' => get_bloginfo('name')],
 		'subject' => $args['subject'],
 		'content' => [
-			['type' => 'text/html', 'value' => $args['message']]
+			['type' => $content_type, 'value' => $args['message']]
 		]
 	];
+	
+	// Add BCC if present
+	if (!empty($bcc_formatted)) {
+		$data['personalizations'][0]['bcc'] = $bcc_formatted;
+	}
 	
 	$response = wp_remote_post('https://api.sendgrid.com/v3/mail/send', [
 		'headers' => [
@@ -133,28 +152,24 @@ function send_via_sendgrid_api($args) {
 		'timeout' => 30
 	]);
 	
-	if (is_wp_error($response)) {
-		error_log('SendGrid API Error: ' . $response->get_error_message());
-		return $args; // Return original args to let wp_mail try default method
-	}
-	
-	$code = wp_remote_retrieve_response_code($response);
-	$body = wp_remote_retrieve_body($response);
-	
-	error_log('SendGrid API Response Code: ' . $code);
-	if ($code !== 202) {
-		error_log('SendGrid API Response Body: ' . $body);
-	}
-	
-	// If successful, we need to prevent wp_mail from actually sending
-	// We do this by adding a filter that makes PHPMailer fail gracefully
-	if ($code == 202) {
-		error_log('=== EMAIL SENT SUCCESSFULLY VIA SENDGRID API ===');
-		add_action('phpmailer_init', function($phpmailer) {
-			$phpmailer->ClearAllRecipients(); // Prevent actual sending
-		}, 9999);
+	if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) == 202) {
+		global $sendgrid_sent_successfully;
+		$sendgrid_sent_successfully = true;
 	}
 	
 	return $args;
 }
 add_filter('wp_mail', __NAMESPACE__ . '\\send_via_sendgrid_api', 10, 1);
+
+/**
+ * Override wp_mail return value when SendGrid API succeeds
+ */
+function override_wp_mail_return($result) {
+	global $sendgrid_sent_successfully;
+	if ($sendgrid_sent_successfully) {
+		$sendgrid_sent_successfully = false;
+		return true;
+	}
+	return $result;
+}
+add_filter('wp_mail', __NAMESPACE__ . '\\override_wp_mail_return', 9999);
