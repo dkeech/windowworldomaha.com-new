@@ -70,42 +70,6 @@ function excerpt_more($more) {
 }
 add_filter('excerpt_more', __NAMESPACE__ . '\\excerpt_more');
 
-/**
- * Override native WP PHPMailer credentials with Sendgrid.
- *
- * @param  object $phpmailer
- * @return void
- */
-// function phpmailer_init($phpmailer) {
-// 	error_log('=== PHPMAILER INIT HOOK FIRED ===');
-// 	error_log('Environment type: ' . wp_get_environment_type());
-// 	if (wp_get_environment_type() === 'production' || wp_get_environment_type() === 'staging') {
-// 		$phpmailer->isSMTP();
-// 		$phpmailer->Host = 'smtp.sendgrid.net';
-// 		$phpmailer->SMTPAuth = true;
-// 		$phpmailer->Port = 587;
-// 		$phpmailer->Username = 'apikey';
-// 		$phpmailer->Password = getenv('SENDGRID_API_KEY');
-// 		$phpmailer->SMTPSecure = 'tls';
-// 		$phpmailer->From = 'noreply@trimarkleads.com';
-// 		$phpmailer->FromName = get_bloginfo('name');
-
-//         error_log('PHPMAILER OBJECT - Host: ' . $phpmailer->Host);
-//         error_log('PHPMAILER OBJECT - Port: ' . $phpmailer->Port);
-//         error_log('PHPMAILER OBJECT - Username: ' . $phpmailer->Username);
-//         error_log('PHPMAILER OBJECT - Password length: ' . strlen($phpmailer->Password));
-//         error_log('PHPMAILER OBJECT - SMTPAuth: ' . ($phpmailer->SMTPAuth ? 'true' : 'false'));
-//         error_log('PHPMAILER OBJECT - SMTPSecure: ' . $phpmailer->SMTPSecure);
-        
-//         $phpmailer->SMTPDebug = 3;
-//         $phpmailer->Debugoutput = function ($str, $level) {
-//             error_log("SMTP Debug [$level]: $str");
-//         };
-        
-//         error_log('=== PHPMAILER SETUP COMPLETE ===');
-// 	}
-// }
-// add_action('phpmailer_init', __NAMESPACE__ . '\\phpmailer_init', 999);
 
 /**
  * Override native WP PHPMailer credentials with SendGrid API.
