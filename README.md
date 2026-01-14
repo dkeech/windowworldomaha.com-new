@@ -1,5 +1,7 @@
 # Window World of Omaha
 
+Note: this site has the email sender in breeze-child/includes/setup.php. The Sendgrid API key needs to be in wp-config or another env file.
+
 A Breeze theme repo using the Breeze Child theme. This repo contains all website specific files based from the public web root. The Breeze theme can be found in the standalone [Breeze Repo](https://github.com/trimarkdigital/breeze).
 
 ## Quick Start with Composer
